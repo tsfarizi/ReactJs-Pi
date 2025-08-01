@@ -17,7 +17,11 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-primary h-16 flex items-center px-10">
       <div className="flex justify-between w-full">
-        <img src="/assets/logo.svg" className="h-12" alt="Logo" />
+        <img
+          src={`${import.meta.env.BASE_URL}assets/logo.svg`}
+          className="h-12"
+          alt="Logo"
+        />
         <button
           className="md:hidden text-secondary focus:outline-none"
           onClick={() => setIsOpen(!isOpen)}
