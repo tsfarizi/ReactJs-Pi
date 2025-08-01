@@ -41,7 +41,7 @@ export default function LoginPage() {
     <div className="min-h-screen relative">
       {/* Background Image */}
       <img
-        src="/assets/hero.png"
+        src={`${import.meta.env.BASE_URL}assets/hero.png`}
         alt="Hero"
         draggable={false}
         className="absolute inset-0 w-full h-full object-cover -z-10"
@@ -57,7 +57,7 @@ export default function LoginPage() {
         >
           {/* Logo */}
           <img
-            src="/assets/logo_2.svg"
+            src={`${import.meta.env.BASE_URL}assets/logo_2.svg`}
             alt="Logo"
             draggable={false}
             className="mx-auto h-12"

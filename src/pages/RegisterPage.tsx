@@ -1,6 +1,6 @@
 import { Eye, EyeOff, Mail, Lock, Phone } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../services/authService";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
@@ -50,7 +50,7 @@ export default function RegisterPage() {
     <div className="min-h-screen relative">
       {/* Background Hero Image */}
       <img
-        src="/assets/hero.png"
+        src={`${import.meta.env.BASE_URL}assets/hero.png`}
         alt="Hero"
         draggable={false}
         className="absolute inset-0 w-full h-full object-cover -z-10"
@@ -65,7 +65,7 @@ export default function RegisterPage() {
         >
           {/* Logo */}
           <img
-            src="/assets/logo_2.svg"
+            src={`${import.meta.env.BASE_URL}assets/logo_2.svg`}
             alt="Logo"
             draggable={false}
             className="mx-auto h-12"
@@ -195,12 +195,12 @@ export default function RegisterPage() {
             {/* Sign In Link */}
             <div className="mt-6 text-center">
               <span className="text-blue-200">Already have an account? </span>
-              <a
-                href="/login"
+              <Link
+                to="/login"
                 className="text-white font-semibold hover:text-blue-200 transition-colors"
               >
                 Sign in
-              </a>
+              </Link>
             </div>
           </div>
         </form>

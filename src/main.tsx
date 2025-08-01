@@ -7,7 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 loadMidtransScript(import.meta.env.VITE_MIDTRANS_CLIENT_KEY);
 
 createRoot(document.getElementById("root")!).render(
-  <BrowserRouter>
+  <BrowserRouter basename={import.meta.env.BASE_URL}>
     <App />
   </BrowserRouter>
 );

@@ -73,7 +73,7 @@ export default function ProjectDecorationGrid() {
                 >
                   <div className="border p-2 flex flex-col justify-start items-start">
                     <img
-                      src={project.cover_image}
+                      src={project.cover_image || undefined}
                       alt={`Gallery ${project.id}`}
                       className="h-64 w-full object-cover rounded-lg"
                       draggable={false}

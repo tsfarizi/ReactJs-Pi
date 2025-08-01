@@ -13,7 +13,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <div className="relative h-screen">
         <img
-          src="/assets/hero.png"
+          src={`${import.meta.env.BASE_URL}assets/hero.png`}
           alt="Hero"
           draggable={false}
           className="w-full h-full object-cover"
@@ -21,7 +21,7 @@ export default function HomePage() {
         />
 
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center space-y-4">
-          <img src="/assets/logo_2.svg" alt="Logo" draggable={false} />
+          <img src={`${import.meta.env.BASE_URL}assets/logo_2.svg`} alt="Logo" draggable={false} />
           <div className="text-white text-2xl font-semibold">
             Wujudkan Acara Wedding Impianmu!
           </div>
