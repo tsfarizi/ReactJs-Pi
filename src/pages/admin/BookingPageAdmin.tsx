@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "../../components/admin/Header";
 import { tokens } from "../../theme";
 import {
@@ -18,7 +18,12 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
 } from "@mui/material";
+import type { SelectChangeEvent } from "@mui/material";
 import {
   getAllBookings,
   cancelBooking,
@@ -28,11 +33,39 @@ import type { BookingDetailAdmin } from "../../models/model";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
+const STATUS_LABELS: Record<string, string> = {
+  pending: "Pending",
+  cancelled: "Cancelled",
+  first_paid: "First Paid",
+  fully_paid: "Fully Paid",
+  confirmed: "Confirmed",
+  paid: "Paid",
+  dp_paid: "DP Paid",
+  done: "Done",
+};
+
+const normalizeStatus = (status?: string): string => (status ?? "").toLowerCase();
+
+const getStatusLabel = (status: string): string => {
+  const normalized = normalizeStatus(status);
+  if (!normalized) return "-";
+  if (STATUS_LABELS[normalized]) return STATUS_LABELS[normalized];
+  return normalized
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
+const STATUS_FILTER_DEFAULT = "paid";
+
 export default function BookingPageAdmin() {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
   const [bookings, setBookings] = useState<BookingDetailAdmin[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string>(
+    STATUS_FILTER_DEFAULT
+  );
   const [loading, setLoading] = useState(true);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
@@ -101,17 +134,40 @@ export default function BookingPageAdmin() {
     setOpenDeleteModal(true);
   };
 
-  // Helper function untuk format status
-  const formatStatus = (status: string): string => {
-    const statusMap: { [key: string]: string } = {
-      pending: "pending",
-      cancelled: "cancelled",
-      first_paid: "first paid",
-      fully_paid: "fully paid",
-      confirmed: "confirmed",
-    };
-    return statusMap[status] || status.toUpperCase();
+  const handleFilterChange = (event: SelectChangeEvent) => {
+    setStatusFilter(normalizeStatus(event.target.value));
   };
+
+  const statusOptions = useMemo(() => {
+    const statuses = new Set<string>([STATUS_FILTER_DEFAULT]);
+
+    bookings.forEach((booking) => {
+      const status = normalizeStatus(booking.status);
+      if (status) {
+        statuses.add(status);
+      }
+    });
+
+    statuses.add(normalizeStatus(statusFilter));
+
+    return [
+      "all",
+      ...Array.from(statuses)
+        .filter((status) => status !== "all")
+        .sort(),
+    ];
+  }, [bookings, statusFilter]);
+
+  const filteredBookings = useMemo(() => {
+    const normalizedFilter = normalizeStatus(statusFilter);
+    if (normalizedFilter === "all") {
+      return bookings;
+    }
+
+    return bookings.filter(
+      (booking) => normalizeStatus(booking.status) === normalizedFilter
+    );
+  }, [bookings, statusFilter]);
 
   if (loading) {
     return (
@@ -131,6 +187,24 @@ export default function BookingPageAdmin() {
     <Box m="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="Booking" subtitle="Manage your bookings here" />
+        <FormControl size="small" sx={{ minWidth: 180 }}>
+          <InputLabel id="booking-status-filter-label">
+            Filter Status
+          </InputLabel>
+          <Select
+            labelId="booking-status-filter-label"
+            id="booking-status-filter"
+            value={statusFilter}
+            label="Filter Status"
+            onChange={handleFilterChange}
+          >
+            {statusOptions.map((status) => (
+              <MenuItem key={status} value={status}>
+                {status === "all" ? "Semua Status" : getStatusLabel(status)}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
       <Box mt="20px">
         <TableContainer component={Paper}>
@@ -167,12 +241,12 @@ export default function BookingPageAdmin() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {bookings.map((booking) => (
+              {filteredBookings.map((booking) => (
                 <TableRow key={booking.id}>
                   <TableCell>{booking.user.name}</TableCell>
                   <TableCell>{booking.decoration.title}</TableCell>
                   <TableCell>{formatDate(booking.date)}</TableCell>
-                  <TableCell>{formatStatus(booking.status)}</TableCell>
+                  <TableCell>{getStatusLabel(booking.status)}</TableCell>
                   <TableCell>{formatCurrency(booking.total_price)}</TableCell>
                   <TableCell>{booking.payment_summary}</TableCell>
                   <TableCell>
@@ -181,8 +255,9 @@ export default function BookingPageAdmin() {
                       color="secondary"
                       size="small"
                       disabled={
-                        booking.status === "Done" ||
-                        booking.status === "cancelled"
+                        ["done", "cancelled"].includes(
+                          normalizeStatus(booking.status)
+                        )
                       }
                       sx={{ mr: 1 }}
                       onClick={() => handleCancel(booking.id)}
@@ -208,10 +283,10 @@ export default function BookingPageAdmin() {
                   </TableCell>
                 </TableRow>
               ))}
-              {bookings.length === 0 && (
+              {filteredBookings.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={8} align="center">
-                    Tidak ada data booking.
+                    Tidak ada data booking untuk status ini.
                   </TableCell>
                 </TableRow>
               )}
