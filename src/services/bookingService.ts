@@ -6,7 +6,7 @@ import type {
   BookingDetailAdmin,
 } from "../models/model";
 import api from "./api";
-import { debug, info, error } from "../utils/logger";
+import { info, error } from "../utils/logger";
 
 /**
  * Membuat booking baru (user)

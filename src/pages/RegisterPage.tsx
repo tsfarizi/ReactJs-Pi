@@ -41,7 +41,8 @@ export default function RegisterPage() {
       }, 2000);
     } catch (err) {
       const error = err as AxiosError<{ message: string }>;
-      const _ = error.response?.data?.message || error.message;
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      error.response?.data?.message || error.message;
       setShowErrorModal(true);
     } finally {
       setLoading(false);

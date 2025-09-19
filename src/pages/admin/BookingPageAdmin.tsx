@@ -30,8 +30,8 @@ import {
   deleteBooking,
   getBookingDetailAdmin,
 } from "../../services/bookingService";
-import { convertPaymentToFinal, ensureFinalPayment } from "../../services/paymentService";
-import type { BookingDetailAdmin, BookingDetail, BookingPayment } from "../../models/model";
+import { ensureFinalPayment } from "../../services/paymentService";
+import type { BookingDetailAdmin, BookingDetail} from "../../models/model";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { info, warn, error } from "../../utils/logger";
