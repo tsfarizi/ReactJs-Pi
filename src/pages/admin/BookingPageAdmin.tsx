@@ -28,10 +28,13 @@ import {
   getAllBookings,
   cancelBooking,
   deleteBooking,
+  getBookingDetailAdmin,
 } from "../../services/bookingService";
-import type { BookingDetailAdmin } from "../../models/model";
+import { convertPaymentToFinal, ensureFinalPayment } from "../../services/paymentService";
+import type { BookingDetailAdmin, BookingDetail, BookingPayment } from "../../models/model";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import { info, warn, error } from "../../utils/logger";
 
 const STATUS_LABELS: Record<string, string> = {
   down_payment: "Down Payment",
@@ -63,18 +66,23 @@ export default function BookingPageAdmin() {
   const [statusFilter, setStatusFilter] = useState<string>(
     STATUS_FILTER_DEFAULT
   );
+  const [convertingBookingId, setConvertingBookingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const logTag = "admin:booking";
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
     null
   );
 
   const fetchBookings = async () => {
+    info(logTag, "Fetching bookings");
     try {
       const res = await getAllBookings();
-      setBookings(res.data);
-    } catch (error) {
-      console.error("❌ Failed to fetch bookings:", error);
+      const items = res.data ?? [];
+      info(logTag, "Bookings fetched", { count: items.length });
+      setBookings(items);
+    } catch (err) {
+      error(logTag, "Failed to fetch bookings", err);
       toast.error("Gagal memuat data booking.");
     } finally {
       setLoading(false);
@@ -82,16 +90,19 @@ export default function BookingPageAdmin() {
   };
 
   useEffect(() => {
+    info(logTag, "Mount BookingPageAdmin");
     fetchBookings();
   }, []);
 
   const handleCancel = async (bookingId: string) => {
+    info(logTag, "Request cancel booking", { bookingId });
     try {
       await cancelBooking(bookingId);
+      info(logTag, "Booking cancelled", { bookingId });
       toast.success("Booking berhasil dibatalkan.");
-      fetchBookings(); // refresh tabel
-    } catch (error) {
-      console.error("❌ Failed to cancel booking:", error);
+      fetchBookings();
+    } catch (err) {
+      error(logTag, "Failed to cancel booking", err);
       toast.error("Gagal membatalkan booking.");
     }
   };
@@ -111,14 +122,64 @@ export default function BookingPageAdmin() {
     });
   };
 
+  const normalizePhoneNumber = (phone: string): string => {
+    if (!phone) return "";
+    const digits = phone.replace(/\D/g, "");
+    if (!digits) return "";
+    if (digits.startsWith("62")) return digits;
+    if (digits.startsWith("0")) {
+      return `62${digits.slice(1)}`;
+    }
+    return digits;
+  };
+
+  const sendWhatsappNotification = (
+    phoneNumber: string,
+    customerName: string,
+    amount: number
+  ) => {
+    info(logTag, "Preparing WhatsApp notification", {
+      phoneNumber,
+      customerName,
+      amount,
+    });
+    const normalized = normalizePhoneNumber(phoneNumber);
+    if (!normalized) {
+      warn(logTag, "Invalid phone number for WhatsApp", { phoneNumber, customerName });
+      toast.error("Nomor WhatsApp pengguna tidak valid.");
+      return;
+    }
+
+    if (typeof window === "undefined") {
+      warn(logTag, "Window undefined when trying to send WhatsApp notification");
+      return;
+    }
+
+    const amountText = formatCurrency(amount);
+    const message = `Halo ${customerName}! Terima kasih, DP kamu sudah kami terima. Sekarang kamu sudah bisa menyelesaikan pelunasan sebesar ${amountText} lewat dashboard kami ya. Kalau ada yang ingin ditanyakan, balas pesan ini saja ya :)`; 
+    const url = `https://wa.me/${normalized}?text=${encodeURIComponent(message)}`;
+    info(logTag, "Opening WhatsApp chat", { phone: normalized });
+    window.open(url, "_blank");
+  };
+
+  const canConvertToFinal = (booking: BookingDetailAdmin): boolean => {
+    const status = normalizeStatus(booking.status);
+    return status === "down_payment_paid";
+  };
+
   const confirmDelete = async () => {
-    if (!selectedBookingId) return;
+    if (!selectedBookingId) {
+      warn(logTag, "confirmDelete called without selected booking");
+      return;
+    }
+    info(logTag, "Deleting booking", { bookingId: selectedBookingId });
     try {
       await deleteBooking(selectedBookingId);
+      info(logTag, "Booking deleted", { bookingId: selectedBookingId });
       toast.success("Paket booking berhasil dihapus.");
       fetchBookings();
-    } catch (error) {
-      console.error("❌ Failed to delete booking:", error);
+    } catch (err) {
+      error(logTag, "Failed to delete booking", err);
       toast.error("Gagal menghapus paket booking.");
     } finally {
       setOpenDeleteModal(false);
@@ -127,12 +188,96 @@ export default function BookingPageAdmin() {
   };
 
   const handleDelete = async (id: string) => {
+    info(logTag, "Open delete confirmation", { bookingId: id });
     setSelectedBookingId(id);
     setOpenDeleteModal(true);
   };
 
+  const handleConvertToFinal = async (booking: BookingDetailAdmin) => {
+    info(logTag, "Activate final payment clicked", { bookingId: booking.id });
+    try {
+      setConvertingBookingId(booking.id);
+      const detailResponse = await getBookingDetailAdmin(booking.id);
+      const detail: BookingDetail = detailResponse.data;
+      const payments = detail?.payments ?? [];
+      info(logTag, "Admin detail fetched", {
+        bookingId: booking.id,
+        paymentsCount: payments.length,
+      });
+      let finalPayment = payments.find(
+        (payment) => payment.type === "final" && payment.payment_status !== "paid"
+      );
+
+      if (!finalPayment) {
+        info(logTag, "No pending final payment found, ensuring creation", {
+          bookingId: booking.id,
+        });
+        try {
+          const ensureResponse = await ensureFinalPayment(booking.id);
+          const ensureData = ensureResponse.data;
+          if (ensureData?.payment) {
+            finalPayment = ensureData.payment ?? undefined;
+            info(logTag, "Final payment row ensured", {
+              bookingId: booking.id,
+              paymentId: finalPayment.id,
+              created: ensureData.created,
+            });
+          } else {
+            warn(logTag, "Ensure final payment did not return payment", {
+              bookingId: booking.id,
+            });
+          }
+        } catch (ensureError) {
+          error(logTag, "Failed to ensure final payment row", ensureError);
+          toast.error("Gagal menyiapkan data pelunasan.");
+          return;
+        }
+      }
+
+      if (!finalPayment) {
+        toast.error("Data pembayaran final tidak ditemukan atau sudah lunas.");
+        return;
+      }
+      info(logTag, "Final payment is available for user", {
+        bookingId: booking.id,
+        paymentId: finalPayment.id,
+      });
+      toast.success("Pelunasan diaktifkan. Pengguna sekarang bisa melunasi.");
+      await fetchBookings();
+      if (detail.user.phone_number) {
+        const parsedAmount =
+          typeof finalPayment.amount === "number"
+            ? finalPayment.amount
+            : Number(finalPayment.amount ?? detail.final_payment_amount);
+        const finalAmount = Number.isFinite(parsedAmount)
+          ? parsedAmount
+          : detail.final_payment_amount;
+        sendWhatsappNotification(
+          detail.user.phone_number,
+          detail.user.name,
+          finalAmount
+        );
+      } else {
+        warn(logTag, "No phone number when final payment activated", {
+          bookingId: booking.id,
+        });
+        toast.info("Pelunasan aktif, namun nomor WhatsApp pengguna tidak tersedia.");
+      }
+    } catch (err) {
+      error(logTag, "Failed to activate final payment", err);
+      toast.error("Gagal mengaktifkan pelunasan.");
+    } finally {
+      info(logTag, "Final payment conversion flow finished", {
+        bookingId: booking.id,
+      });
+      setConvertingBookingId(null);
+    }
+  };
+
   const handleFilterChange = (event: SelectChangeEvent) => {
-    setStatusFilter(normalizeStatus(event.target.value));
+    const value = normalizeStatus(event.target.value);
+    info(logTag, "Status filter changed", { value });
+    setStatusFilter(value);
   };
 
   const statusOptions = useMemo(() => {
@@ -251,36 +396,60 @@ export default function BookingPageAdmin() {
                   <TableCell>{formatCurrency(booking.total_price)}</TableCell>
                   <TableCell>{booking.payment_summary}</TableCell>
                   <TableCell>
-                    <Button
-                      variant="outlined"
-                      color="secondary"
-                      size="small"
-                      disabled={
-                        ["final_payment_paid", "cancelled"].includes(
-                          normalizeStatus(booking.status)
-                        )
-                      }
-                      sx={{ mr: 1 }}
-                      onClick={() => handleCancel(booking.id)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      size="small"
-                      sx={{ mr: 1 }}
-                      onClick={() => handleDelete(booking.id)}
-                    >
-                      Delete
-                    </Button>
-                    {booking && (
-                      <Link to={`/admin/bookings/${booking.id}`}>
-                        <Button variant="outlined" color="warning" size="small">
+                    <Box display="flex" flexWrap="wrap" alignItems="center" gap={1}>
+                      <Link
+                        to={`/admin/bookings/${booking.id}`}
+                        style={{ textDecoration: "none" }}
+                      >
+                        <Button
+                          variant="outlined"
+                          color="warning"
+                          size="small"
+                          sx={{ textTransform: "none" }}
+                        >
                           Detail
                         </Button>
                       </Link>
-                    )}
+                      {canConvertToFinal(booking) && (
+                        <Button
+                          variant="contained"
+                          color="success"
+                          size="small"
+                          sx={{ textTransform: "none" }}
+                          onClick={() => handleConvertToFinal(booking)}
+                          disabled={convertingBookingId === booking.id}
+                        >
+                          {
+                            convertingBookingId === booking.id
+                              ? "Memproses..."
+                              : "Aktifkan Pelunasan"
+                          }
+                        </Button>
+                      )}
+                      <Button
+                        variant="outlined"
+                        color="secondary"
+                        size="small"
+                        sx={{ textTransform: "none" }}
+                        disabled={
+                          ["final_payment_paid", "cancelled"].includes(
+                            normalizeStatus(booking.status)
+                          )
+                        }
+                        onClick={() => handleCancel(booking.id)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        sx={{ textTransform: "none" }}
+                        onClick={() => handleDelete(booking.id)}
+                      >
+                        Delete
+                      </Button>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))}
@@ -322,3 +491,10 @@ export default function BookingPageAdmin() {
     </Box>
   );
 }
+
+
+
+
+
+
+

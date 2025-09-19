@@ -1,4 +1,4 @@
-import { debug, info, warn, error, mask } from "./logger";
+import { debug, info, error, mask } from "./logger";
 
 export const loadMidtransScript = (clientKey: string): Promise<void> => {
   info("midtrans:script", "Loading Snap script", { clientKey: mask(clientKey) });

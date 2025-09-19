@@ -33,6 +33,20 @@ export default function BookingPage() {
 
     return map[normalized] ?? status;
   };
+  const getStatusNote = (booking: UserBookingItem): string | null => {
+    const normalizedStatus = booking.status?.toLowerCase();
+    if (normalizedStatus === 'cancelled' || normalizedStatus === 'final_payment_paid') {
+      return null;
+    }
+    const hasFinalAvailable = booking.available_payments?.includes('final') ?? false;
+
+    if (normalizedStatus === 'down_payment_paid' && !hasFinalAvailable) {
+      return 'Menunggu konfirmasi admin untuk pelunasan.';
+    }
+
+    return null;
+  };
+
 
   useEffect(() => {
     const state = location.state as {
@@ -306,7 +320,10 @@ export default function BookingPage() {
                 </tr>
               </thead>
               <tbody>
-                {bookings.map((booking: UserBookingItem) => (
+                {bookings.map((booking: UserBookingItem) => {
+                  const statusNote = getStatusNote(booking);
+
+                  return (
                   <tr key={booking.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 border-b">
                       {booking.decoration.title}
@@ -319,7 +336,10 @@ export default function BookingPage() {
                       })}
                     </td>
                     <td className="px-4 py-3 border-b capitalize">
-                      {formatStatus(booking.status)}
+                      <div>{formatStatus(booking.status)}</div>
+                      {statusNote && (
+                        <p className="text-xs text-amber-600 mt-1">{statusNote}</p>
+                      )}
                     </td>
                     <td className="px-4 py-3 border-b text-center space-y-2">
                       <Link
@@ -346,7 +366,8 @@ export default function BookingPage() {
                       </Button>
                     </td>
                   </tr>
-                ))}
+                );
+              })}
               </tbody>
             </table>
           </div>
@@ -355,3 +376,4 @@ export default function BookingPage() {
     </div>
   );
 }
+

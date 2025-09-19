@@ -82,6 +82,16 @@ export interface UserBookingItem {
   final_payment_date: string;
 }
 
+export interface BookingPayment {
+  id: string;
+  type: PaymentType;
+  payment_status: "pending" | "paid" | "failed" | string;
+  amount: number;
+  order_id?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface BookingDetail {
   id: string;
   date: string;
@@ -112,6 +122,7 @@ export interface BookingDetail {
   final_payment_amount: number;
   paid_payments: Array<"dp" | "first" | "final">;
   available_payments: Array<"dp" | "first" | "final">;
+  payments?: BookingPayment[];
 }
 
 interface User {
