@@ -12,7 +12,7 @@ import { loadMidtransScript } from "../../utils/loadMidtrans";
 import { payWithMidtrans } from "../../utils/midtrans";
 import axios from "axios";
 import { Button } from "@mui/material";
-import { info, debug, warn, error, mask } from "../../utils/logger";
+import { info, warn, error, mask } from "../../utils/logger";
 
 export default function BookingPage() {
   const [bookings, setBookings] = useState<UserBookingItem[]>([]);
