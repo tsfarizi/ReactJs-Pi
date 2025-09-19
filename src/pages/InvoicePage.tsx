@@ -28,15 +28,14 @@ export default function InvoicePage() {
 
   const getStatusLabel = (status: string): string => {
     switch (status) {
-      case "pending":
-        return "Menunggu Pembayaran";
-      case "dp_paid":
+      case "down_payment":
+        return "Menunggu DP";
+      case "down_payment_paid":
         return "DP Terbayar";
-      case "first_paid":
-        return "Tahap 1 Terbayar";
-      case "done":
-      case "paid":
-        return "Lunas";
+      case "final_payment":
+        return "Menunggu Pelunasan";
+      case "final_payment_paid":
+        return "Pelunasan Terbayar";
       case "cancelled":
         return "Dibatalkan";
       default:
@@ -46,13 +45,14 @@ export default function InvoicePage() {
 
   const getStatusColor = (status: string): string => {
     switch (status) {
-      case "paid":
-      case "done":
-        return "bg-green-100 text-green-800";
-      case "pending":
-      case "dp_paid":
-      case "first_paid":
+      case "down_payment":
         return "bg-yellow-100 text-yellow-800";
+      case "down_payment_paid":
+        return "bg-blue-100 text-blue-800";
+      case "final_payment":
+        return "bg-yellow-100 text-yellow-800";
+      case "final_payment_paid":
+        return "bg-green-100 text-green-800";
       case "cancelled":
         return "bg-red-100 text-red-800";
       default:

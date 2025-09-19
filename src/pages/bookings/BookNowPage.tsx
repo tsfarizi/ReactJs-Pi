@@ -80,7 +80,6 @@ export default function BookNowPage() {
         navigate("/booking", {
           state: {
             successMessage: result.message || "Booking berhasil dibuat!",
-            whatsappLink: result.data.whatsapp_link,
           },
         });
       }, 2000);

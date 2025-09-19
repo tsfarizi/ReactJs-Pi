@@ -1,6 +1,11 @@
+import { debug, info, warn, error, mask } from "./logger";
+
 export const loadMidtransScript = (clientKey: string): Promise<void> => {
+  info("midtrans:script", "Loading Snap script", { clientKey: mask(clientKey) });
   return new Promise((resolve, reject) => {
-    if (document.getElementById("snap-script")) {
+    const existing = document.getElementById("snap-script");
+    if (existing) {
+      debug("midtrans:script", "Snap script already present");
       resolve();
       return;
     }
@@ -11,8 +16,16 @@ export const loadMidtransScript = (clientKey: string): Promise<void> => {
     script.id = "snap-script";
     script.async = true;
 
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Gagal memuat Midtrans Snap"));
+    script.onload = () => {
+      // @ts-ignore
+      const available = !!(window.snap && typeof window.snap.pay === "function");
+      info("midtrans:script", "Snap script loaded", { available });
+      resolve();
+    };
+    script.onerror = () => {
+      error("midtrans:script", "Failed to load Snap script");
+      reject(new Error("Gagal memuat Midtrans Snap"));
+    };
 
     document.body.appendChild(script);
   });

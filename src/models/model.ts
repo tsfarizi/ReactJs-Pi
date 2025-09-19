@@ -85,7 +85,12 @@ export interface UserBookingItem {
 export interface BookingDetail {
   id: string;
   date: string;
-  status: "pending" | "dp_paid" | "first_paid" | "done" | "paid" | "cancelled";
+  status:
+    | "down_payment"
+    | "down_payment_paid"
+    | "final_payment"
+    | "final_payment_paid"
+    | "cancelled";
   created_at: string;
   user: {
     name: string;

@@ -6,6 +6,7 @@ import type {
   BookingDetailAdmin,
 } from "../models/model";
 import api from "./api";
+import { debug, info, error } from "../utils/logger";
 
 /**
  * Membuat booking baru (user)
@@ -28,8 +29,15 @@ export const createBooking = async (
  * Mendapatkan semua booking milik user yang login
  */
 export const getMyBookings = async (): Promise<{ data: UserBookingItem[] }> => {
-  const response = await api.get("/booking/me");
-  return response.data;
+  try {
+    info("booking:getMy", "Fetching my bookings");
+    const response = await api.get("/booking/me");
+    info("booking:getMy", "Fetched my bookings", { count: response.data?.data?.length });
+    return response.data;
+  } catch (e) {
+    error("booking:getMy", "Failed to fetch my bookings", e);
+    throw e;
+  }
 };
 
 /**

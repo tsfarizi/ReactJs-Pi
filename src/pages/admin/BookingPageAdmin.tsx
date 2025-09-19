@@ -34,14 +34,11 @@ import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
 const STATUS_LABELS: Record<string, string> = {
-  pending: "Pending",
+  down_payment: "Down Payment",
+  down_payment_paid: "Down Payment Paid",
+  final_payment: "Final Payment",
+  final_payment_paid: "Final Payment Paid",
   cancelled: "Cancelled",
-  first_paid: "First Paid",
-  fully_paid: "Fully Paid",
-  confirmed: "Confirmed",
-  paid: "Paid",
-  dp_paid: "DP Paid",
-  done: "Done",
 };
 
 const normalizeStatus = (status?: string): string => (status ?? "").toLowerCase();
@@ -56,7 +53,7 @@ const getStatusLabel = (status: string): string => {
     .join(" ");
 };
 
-const STATUS_FILTER_DEFAULT = "paid";
+const STATUS_FILTER_DEFAULT = "all";
 
 export default function BookingPageAdmin() {
   const theme = useTheme();
@@ -215,6 +212,9 @@ export default function BookingPageAdmin() {
                   Nama Pelanggan
                 </TableCell>
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
+                  Nomor Telepon
+                </TableCell>
+                <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
                   Paket Dekorasi
                 </TableCell>
                 <TableCell sx={{ color: colors.grey[100], fontWeight: "bold" }}>
@@ -244,6 +244,7 @@ export default function BookingPageAdmin() {
               {filteredBookings.map((booking) => (
                 <TableRow key={booking.id}>
                   <TableCell>{booking.user.name}</TableCell>
+                  <TableCell>{booking.user.phone_number || "-"}</TableCell>
                   <TableCell>{booking.decoration.title}</TableCell>
                   <TableCell>{formatDate(booking.date)}</TableCell>
                   <TableCell>{getStatusLabel(booking.status)}</TableCell>
@@ -255,7 +256,7 @@ export default function BookingPageAdmin() {
                       color="secondary"
                       size="small"
                       disabled={
-                        ["done", "cancelled"].includes(
+                        ["final_payment_paid", "cancelled"].includes(
                           normalizeStatus(booking.status)
                         )
                       }
