@@ -242,9 +242,9 @@ export default function BookingPage() {
     const isDpPaid = booking.paid_payments?.includes("dp");
     const isFinalPaid = booking.paid_payments?.includes("final");
     const showDownPaymentButton =
-      booking.available_payments.includes("dp") &&
       normalizedStatus === "down_payment" &&
-      !isDpPaid;
+      !isDpPaid &&
+      (booking.available_payments?.includes("dp") ?? true);
     const showFinalButton =
       booking.available_payments.includes("final") &&
       normalizedStatus === "final_payment" &&
@@ -376,4 +376,5 @@ export default function BookingPage() {
     </div>
   );
 }
+
 
