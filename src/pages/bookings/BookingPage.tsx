@@ -46,6 +46,21 @@ export default function BookingPage() {
 
     return null;
   };
+  const formatBookingDate = (date: string): string =>
+    new Date(date).toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+
+  const buildContactLink = (booking: UserBookingItem): string => {
+    const phone = "6281697779709";
+    const decorationTitle = booking.decoration?.title ?? "paket dekorasi";
+    const eventDate = formatBookingDate(booking.date);
+    const message = `Halo admin Chiz Décor, saya ingin menanyakan perkembangan pesanan saya untuk paket ${decorationTitle} pada tanggal ${eventDate}.`;
+    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  };
+
 
 
   useEffect(() => {
@@ -348,6 +363,20 @@ export default function BookingPage() {
                       >
                         Lihat Invoice
                       </Link>
+                      {booking.status?.toLowerCase() === "down_payment_paid" && (
+                        <Button
+                          component="a"
+                          href={buildContactLink(booking)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          variant="outlined"
+                          color="secondary"
+                          size="small"
+                          sx={{ textTransform: "none", width: "70%" }}
+                        >
+                          Hubungi Admin
+                        </Button>
+                      )}
                       {booking.status?.toLowerCase() !== "cancelled" &&
                         renderPaymentButtons(booking)}
                       <Button
@@ -376,5 +405,6 @@ export default function BookingPage() {
     </div>
   );
 }
+
 
 

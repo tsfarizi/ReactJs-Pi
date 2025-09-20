@@ -20,3 +20,151 @@ body {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+@keyframes weddingFade {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) scale(0.96);
+  }
+  60% {
+    opacity: 0.9;
+    transform: translateY(-12px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes weddingGlow {
+  0% {
+    opacity: 0.22;
+    transform: translate3d(-2%, -2%, 0) scale(1.02);
+  }
+  50% {
+    opacity: 0.37;
+    transform: translate3d(2%, 2%, 0) scale(1.05);
+  }
+  100% {
+    opacity: 0.22;
+    transform: translate3d(-2%, -1%, 0) scale(1.02);
+  }
+}
+
+@keyframes weddingShimmer {
+  0% {
+    transform: translateX(-40%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+
+.wedding-fade {
+  animation: weddingFade 1.3s ease-out both;
+}
+
+.wedding-delay-1 {
+  animation-delay: 0.15s;
+}
+
+.wedding-delay-2 {
+  animation-delay: 0.3s;
+}
+
+.wedding-delay-3 {
+  animation-delay: 0.45s;
+}
+
+.wedding-delay-4 {
+  animation-delay: 0.6s;
+}
+
+.wedding-section {
+  position: relative;
+  isolation: isolate;
+}
+
+.wedding-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(237, 223, 224, 0.28), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(238, 230, 222, 0.26), transparent 60%);
+  opacity: 0.75;
+  z-index: -1;
+}
+
+.hero-petal {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-petal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.18), transparent 55%),
+    radial-gradient(circle at 80% 30%, rgba(255, 224, 230, 0.22), transparent 60%);
+  mix-blend-mode: screen;
+  animation: weddingGlow 14s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hero-petal::after {
+  content: "";
+  position: absolute;
+  top: -20%;
+  left: -30%;
+  width: 60%;
+  height: 140%;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0));
+  animation: weddingShimmer 18s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.wedding-outline {
+  position: relative;
+}
+
+.wedding-outline::after {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  border: 1px solid rgba(237, 223, 224, 0.55);
+  border-radius: 32px;
+  opacity: 0.85;
+  z-index: -1;
+}
+
+.wedding-button {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  box-shadow: 0 12px 32px rgba(115, 85, 87, 0.25);
+}
+
+.wedding-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.wedding-button:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 18px 40px rgba(115, 85, 87, 0.3);
+}
+
+.wedding-button:hover::after {
+  opacity: 1;
+}

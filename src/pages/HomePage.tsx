@@ -11,7 +11,7 @@ export default function HomePage() {
       <Navbar />
 
       {/* Hero Section */}
-      <div className="relative h-screen">
+      <div className="relative h-screen hero-petal">
         <img
           src={`${import.meta.env.BASE_URL}assets/hero.png`}
           alt="Hero"
@@ -21,20 +21,25 @@ export default function HomePage() {
         />
 
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center space-y-4">
-          <img src={`${import.meta.env.BASE_URL}assets/logo_2.svg`} alt="Logo" draggable={false} />
-          <div className="text-white text-2xl font-semibold">
+          <img
+            src={`${import.meta.env.BASE_URL}assets/logo_2.svg`}
+            alt="Logo"
+            draggable={false}
+            className="wedding-fade wedding-delay-1"
+          />
+          <div className="text-white text-2xl font-semibold wedding-fade wedding-delay-2">
             Wujudkan Acara Wedding Impianmu!
           </div>
-          <a
-            href="#gallery-section"
-            className="px-5 py-1 rounded-full bg-primary text-secondary font-bold"
+          <Link
+            to="/decorations"
+            className="px-5 py-2 rounded-full bg-primary text-secondary font-bold wedding-button wedding-fade wedding-delay-3"
           >
             EXPLORE
-          </a>
+          </Link>
         </div>
 
         {/* Social Media & Contact - Bottom Left */}
-        <div className="absolute bottom-6 left-6 hidden sm:flex flex-col text-white space-y-2">
+        <div className="absolute bottom-6 left-6 hidden sm:flex flex-col text-white space-y-2 wedding-fade wedding-delay-2">
           <h2 className="text-xl font-semibold">Contacts</h2>
           <div className="flex items-center gap-2">
             <a
@@ -67,7 +72,7 @@ export default function HomePage() {
         </div>
 
         {/* Follow Us - Bottom Center */}
-        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-center space-y-2 text-white">
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-center space-y-2 text-white wedding-fade wedding-delay-3">
           <p className="uppercase tracking-wide">Follow Us</p>
           <div className="flex justify-center gap-4">
             <a
@@ -89,11 +94,11 @@ export default function HomePage() {
       </div>
 
       {/* Main Scrollable Content */}
-      <main className="bg-white">
+      <main className="bg-white wedding-fade wedding-delay-1">
         {/* About Us Section */}
-        <section className="flex flex-col items-center justify-center text-center space-y-4 py-32 px-4 max-w-5xl mx-auto">
-          <div className="text-secondary text-3xl">About Us</div>
-          <div className="text-lg text-gray-700">
+        <section className="flex flex-col items-center justify-center text-center space-y-4 py-32 px-4 max-w-5xl mx-auto wedding-section">
+          <div className="text-secondary text-3xl wedding-fade wedding-delay-1">About Us</div>
+          <div className="text-lg text-gray-700 wedding-fade wedding-delay-2 wedding-outline">
             Weddings have proven to be a large and expansive creative industry
             in Indonesia, born from the idea that wedding preparations are among
             the most important moments in a person's life. With a mission to
@@ -109,23 +114,27 @@ export default function HomePage() {
       </main>
 
       {/* Gallery Decoration Section */}
-      <section className="py-24 bg-gray-50" id="gallery-section">
-        <div className="flex flex-col items-center justify-center text-center space-y-4 max-w-5xl mx-auto">
-          <div className="text-secondary text-3xl">Gallery Decoration</div>
-          <GalleryScroll />
+      <section className="py-24 bg-gray-50 wedding-section" id="gallery-section">
+        <div className="flex flex-col items-center justify-center text-center space-y-4 max-w-5xl mx-auto wedding-fade wedding-delay-1">
+          <div className="text-secondary text-3xl wedding-fade wedding-delay-1">Gallery Decoration</div>
+          <div className="w-full wedding-fade wedding-delay-2 wedding-outline">
+            <GalleryScroll />
+          </div>
         </div>
       </section>
 
       {/* Wedding Decoration Section */}
-      <section className="py-24">
-        <div className="flex flex-col items-center justify-center text-center space-y-10 max-w-5xl mx-auto">
-          <div className="text-secondary text-3xl">Project Decoration</div>
-          <ProjectDecorationGrid />
+      <section className="py-24 wedding-section">
+        <div className="flex flex-col items-center justify-center text-center space-y-10 max-w-5xl mx-auto wedding-fade wedding-delay-1">
+          <div className="text-secondary text-3xl wedding-fade wedding-delay-1">Project Decoration</div>
+          <div className="w-full wedding-fade wedding-delay-2 wedding-outline">
+            <ProjectDecorationGrid />
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-6 text-center text-sm text-gray-500 border-t">
+      <footer className="py-6 text-center text-sm text-gray-500 border-t wedding-fade wedding-delay-4">
         <p>
           © 2025 |{" "}
           <Link to="/about" className="hover:underline">
@@ -140,3 +149,4 @@ export default function HomePage() {
     </>
   );
 }
+
