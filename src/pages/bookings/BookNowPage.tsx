@@ -199,14 +199,37 @@ export default function BookNowPage() {
             <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
               <div className="bg-white max-w-lg w-full p-6 rounded-lg shadow-lg overflow-y-auto max-h-[80vh]">
                 <h2 className="text-xl font-bold mb-4">Syarat dan Ketentuan</h2>
-                <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside">
-                  <li>Client harus konfirmasi tanggal dan tempat acara untuk booking.</li>
-                  <li>Harga belum termasuk transportasi: Jakarta Rp300.000, Bodetabek Rp500.000.</li>
-                  <li>Survey venue hanya 1 kali.</li>
-                  <li>Meeting/Technical meeting hanya 1 kali.</li>
-                  <li>Tidak termasuk charge venue (jika dikenakan).</li>
-                  <li>Kerusakan/kehilangan properti jadi tanggung jawab client.</li>
-                  <li>Pembatalan karena Force Majeure tidak ada pengembalian dana.</li>
+                <ol className="text-sm text-gray-700 space-y-3 list-decimal list-inside">
+                  <li>
+                    <p className="font-medium">Konfirmasi Pemesanan</p>
+                    <p className="ml-5 mt-1">Klien wajib mengonfirmasi tanggal dan lokasi acara untuk proses pemesanan (booking).</p>
+                  </li>
+                  <li>
+                    <p className="font-medium">Pembayaran dan Uang Muka (DP)</p>
+                    <ul className="ml-7 mt-1 list-disc space-y-1">
+                      <li>Harga belum termasuk biaya transportasi. Biaya transportasi untuk area Jakarta adalah Rp300.000 dan Bodetabek Rp500.000.</li>
+                      <li>Pembayaran uang muka (DP) diperlukan untuk mengunci tanggal dan pemesanan.</li>
+                      <li>Uang muka (DP) yang sudah dibayarkan tidak dapat dikembalikan apabila klien membatalkan acara.</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <p className="font-medium">Survey dan Pertemuan</p>
+                    <ul className="ml-7 mt-1 list-disc space-y-1">
+                      <li>Survey lokasi (venue) hanya dapat dilakukan 1 kali.</li>
+                      <li>Pertemuan atau rapat teknis (technical meeting) hanya dapat dilakukan 1 kali.</li>
+                    </ul>
+                  </li>
+                  <li>
+                    <p className="font-medium">Biaya Tambahan</p>
+                    <p className="ml-5 mt-1">Biaya sewa atau biaya tambahan dari lokasi acara (charge venue) tidak termasuk dalam harga dan menjadi tanggungan klien apabila dikenakan.</p>
+                  </li>
+                  <li>
+                    <p className="font-medium">Tanggung Jawab Properti & Pembatalan</p>
+                    <ul className="ml-7 mt-1 list-disc space-y-1">
+                      <li>Kerusakan atau kehilangan properti yang terjadi selama acara menjadi tanggung jawab klien sepenuhnya.</li>
+                      <li>Apabila terjadi pembatalan karena Force Majeure (misalnya bencana alam atau kondisi luar biasa lainnya), tidak ada pengembalian dana yang akan diberikan.</li>
+                    </ul>
+                  </li>
                 </ol>
                 <div className="mt-6 text-right">
                   <button onClick={() => setShowTerms(false)} className="px-4 py-2 bg-secondary text-white rounded hover:bg-opacity-80">
