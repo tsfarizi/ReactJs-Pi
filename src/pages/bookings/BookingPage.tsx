@@ -54,7 +54,7 @@ export default function BookingPage() {
     });
 
   const buildContactLink = (booking: UserBookingItem): string => {
-    const phone = "6281697779709";
+    const phone = "6281617775709";
     const decorationTitle = booking.decoration?.title ?? "paket dekorasi";
     const eventDate = formatBookingDate(booking.date);
     const message = `Halo admin Chiz Décor, saya ingin menanyakan perkembangan pesanan saya untuk paket ${decorationTitle} pada tanggal ${eventDate}.`;
@@ -405,6 +405,7 @@ export default function BookingPage() {
     </div>
   );
 }
+
 
 
 
